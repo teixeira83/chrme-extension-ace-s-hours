@@ -1,0 +1,25 @@
+{
+    "name": "ACE's Campos",
+    "manifest_version": 2,
+    "version": "1",
+    "description": "Extensão para fazer cálculo de horas dos ACE's do Municipio de Campos dos Goytacazes",
+    "author": "Rafael Teixeira",
+    "browser_action": {
+        "default_title": "ACE's Campos",
+        "default_icon": "icon.png",
+        "default_popup" : "index.html"
+        
+    },
+    "content_scripts": [
+        {
+          "matches": ["https://sistemas.campos.rj.gov.br/area-do-servidor/espelho_ponto"],
+          "js": ["content.js"]
+        }
+      ],
+    "background": 
+        {
+        "scripts" : ["background.js"]
+        },
+    "permissions" : ["tabs"]
+}
+
