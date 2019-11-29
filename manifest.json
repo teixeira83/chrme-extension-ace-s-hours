@@ -6,9 +6,7 @@
     "author": "Rafael Teixeira",
     "browser_action": {
         "default_title": "ACE's Campos",
-        "default_icon": "icon.png",
-        "default_popup" : "index.html"
-        
+        "default_icon": "icon.png"
     },
     "content_scripts": [
         {
