@@ -1,9 +1,11 @@
 chrome.runtime.onMessage.addListener(gotMessage);
 
-function gotMessage(message, sender, senResponse) {
+async function gotMessage(message, sender, senResponse) {
     
         var vetorSemanas = document.getElementsByClassName('fc-content-skeleton');
-        var horasMes = 0
+        const horaBase = 32400000
+
+        var bancoDeHoras = 0
 
         for(let i = 0; i < vetorSemanas.length; i++){
             let tbody = vetorSemanas[i].getElementsByTagName('tbody')
@@ -22,25 +24,48 @@ function gotMessage(message, sender, senResponse) {
                     let horaEntrada = rawEntrada[0]
                     let minutoEntrada = rawEntrada[1]
                     let dataEntrada = new Date(0,0,0,horaEntrada, minutoEntrada)
-                    console.log(dataEntrada)
-
+                    
                     //formatando hora de saida
                     let rawSaida = saida.split(':')
                     let horaSaida = rawSaida[0]
                     let minutoSaida = rawSaida[1]
                     let dataSaida = new Date(0,0,0,horaSaida, minutoSaida)
-                    console.log(dataSaida)
 
-                    //data base para calculo de diferenca
-                    let dataBase = new Date(0,0,0,'08','00')
-                    let horasTrabalhadas = dataSaida.getTime() - dataEntrada.getTime()
-                    let diferencaDia = horasTrabalhadas - dataBase;
-                    horasMes += diferencaDia 
-                    console.log(milisecondsToTime(horasMes))
-                    
+                    /*
+                        1- Calcular horas trabalhadas por dia
+                        2- Pegar a diferença entre as horas trabalhadas com a hora base ( 09:00h)
+                        3- Somar no Banco de Horas
+                    */ 
+                    let horasTrabalhadas = dataSaida - dataEntrada
+                    let dif = horasTrabalhadas - horaBase 
+                    bancoDeHoras += dif
                 }
             }
-        } 
+        }
+
+        await milisecondsToTime(bancoDeHoras).then(res => {
+            let vetorHora = res
+            vetorHora = vetorHora.split(':')
+
+            if( parseInt(vetorHora[0], 10) < 0 ) {
+                vetorHora[1] *= -1
+            }
+            if( parseInt(vetorHora[1], 10) > 0 ) {
+                horaFormatada(vetorHora).then(hora => {
+                    alert(`Seu banco de horas é igual a ${hora} hrs
+                            Cuidado! Você está com horas negativas!
+                            Utilizando o meu incrível porder computacional é possível estimar que haja 99% de chance de você ser o barba!`)    
+                })
+            }else{
+                horaFormatada(vetorHora).then(hora => {
+                    alert(`Seu banco de horas é igual a ${hora} hrs
+                            Parabéns! Você está com horas sobrando que não lhe serão pagas!`)
+                })
+            console.log(vetorHora[0])
+            console.log(vetorHora[1])
+            console.log(vetorHora[2])
+            }
+        })
 }
 
 async function milisecondsToTime(s){
@@ -51,6 +76,9 @@ async function milisecondsToTime(s){
     var mins = s % 60;
     var hrs = (s - mins) / 60;
     
-    return '0' + hrs + ':' + mins + ':' + '0' + secs + '.' + ms;
+    return hrs + ':' + mins + ':' + '0' + secs;
 }
 
+async function horaFormatada(vetor) {
+    return vetor[0] + ':' + vetor[1] + ':' + vetor[2];
+}
